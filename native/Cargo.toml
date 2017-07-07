@@ -1,0 +1,16 @@
+[package]
+name = "rustapable"
+version = "0.0.0-dev"
+authors = ["sendilkumarn <sendilkumarn@live.com>"]
+license = "MIT"
+build = "build.rs"
+
+[lib]
+name = "rustapable"
+crate-type = ["dylib"]
+
+[build-dependencies]
+neon-build = "0.1.18"
+
+[dependencies]
+neon = "0.1.18"
