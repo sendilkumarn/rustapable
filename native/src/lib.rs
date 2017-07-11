@@ -1,10 +1,9 @@
 #[macro_use]
 extern crate neon;
 
-use neon::vm::{Call, JsResult, This, FunctionCall};
+use neon::vm::{Call, JsResult};
 use neon::js::{JsArray, JsNull, JsUndefined, JsObject, Object, JsFunction, JsValue, JsNumber, JsBoolean};
 use neon::mem::Handle;
-use neon::js::Value;
 
 fn copy_properties(call: Call) -> JsResult<JsObject> {
     let scope = call.scope;
@@ -19,9 +18,9 @@ fn copy_properties(call: Call) -> JsResult<JsObject> {
 
 
 fn fast_filter(mut call: Call) -> JsResult<JsArray>{
-    let fun: Handle<JsFunction> = try!(call.check_argument::<JsFunction>(0));
-    let this: Handle<JsArray> = try!(call.check_argument::<JsArray>(1));
-    let arguments: Handle<JsValue> = try!(call.check_argument::<JsValue>(2));
+    let fun: Handle<JsFunction> = try!(try!(call.arguments.require(call.scope, 0)).check::<JsFunction>());
+    let this: Handle<JsArray> = try!(try!(call.arguments.require(call.scope, 1)).check::<JsArray>());
+    let arguments: Handle<JsValue> = try!(try!(call.arguments.require(call.scope, 2)).check::<JsValue>());
 
     let args: Vec<Handle<JsValue>> = vec![arguments];
     let this_arg = match args.len() {
@@ -53,18 +52,6 @@ fn fast_filter(mut call: Call) -> JsResult<JsArray>{
 
     Ok(res)
 }
-
-
-trait CheckArgument<'a> {
-    fn check_argument<V: Value>(&mut self, i: i32) -> JsResult<'a, V>;
-}
-
-impl<'a, T: This> CheckArgument<'a> for FunctionCall<'a, T> {
-    fn check_argument<V: Value>(&mut self, i: i32) -> JsResult<'a, V> {
-        try!(self.arguments.require(self.scope, i)).check::<V>()
-    }
-}
-
 
 register_module!(m, {
     m.export("copyProperties", copy_properties)?;
